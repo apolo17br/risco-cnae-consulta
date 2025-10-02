@@ -16,27 +16,27 @@ export type Database = {
     Tables: {
       lista_cnae: {
         Row: {
-          codigo_cnae: string
+          codigo: string
           created_at: string
-          descricao_atividade: string
+          descricao: string
           id: string
-          nivel_risco: Database["public"]["Enums"]["risk_level"]
+          nivel: Database["public"]["Enums"]["risk_level"]
           updated_at: string
         }
         Insert: {
-          codigo_cnae: string
+          codigo: string
           created_at?: string
-          descricao_atividade: string
+          descricao: string
           id?: string
-          nivel_risco: Database["public"]["Enums"]["risk_level"]
+          nivel: Database["public"]["Enums"]["risk_level"]
           updated_at?: string
         }
         Update: {
-          codigo_cnae?: string
+          codigo?: string
           created_at?: string
-          descricao_atividade?: string
+          descricao?: string
           id?: string
-          nivel_risco?: Database["public"]["Enums"]["risk_level"]
+          nivel?: Database["public"]["Enums"]["risk_level"]
           updated_at?: string
         }
         Relationships: []

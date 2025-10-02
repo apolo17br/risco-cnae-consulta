@@ -35,16 +35,16 @@ export async function fetchCNAEActivities(
 
   // Filtro de busca
   if (searchTerm && searchTerm.trim()) {
-    query = query.or(`codigo_cnae.ilike.%${searchTerm}%,descricao_atividade.ilike.%${searchTerm}%`);
+    query = query.or(`codigo.ilike.%${searchTerm}%,descricao.ilike.%${searchTerm}%`);
   }
 
   // Filtro de risco
   if (riskFilter && riskFilter !== "Todos") {
-    query = query.eq("nivel_risco", riskFilter);
+    query = query.eq("nivel", riskFilter);
   }
 
   // Ordenação
-  query = query.order(sortBy === "codigo" ? "codigo_cnae" : "descricao_atividade", { ascending: true });
+  query = query.order(sortBy === "codigo" ? "codigo" : "descricao", { ascending: true });
 
   // Paginação
   const from = (page - 1) * pageSize;
@@ -57,9 +57,9 @@ export async function fetchCNAEActivities(
 
   const activities: CNAEActivity[] = (data || []).map((activity: SupabaseCNAE) => ({
     id: activity.id,
-    codigo_cnae: activity.codigo_cnae,
-    descricao_atividade: activity.descricao_atividade,
-    nivel_risco: activity.nivel_risco,
+    codigo_cnae: activity.codigo,
+    descricao_atividade: activity.descricao,
+    nivel_risco: activity.nivel,
     created_at: activity.created_at,
   }));
 
