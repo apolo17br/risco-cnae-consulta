@@ -28,9 +28,58 @@ const Index = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("checking");
   const [showVariationsOnly, setShowVariationsOnly] = useState(false);
+  const [highlightRowsByRisk, setHighlightRowsByRisk] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    if (typeof window === "undefined") {
+      return [];
+    }
+
+    try {
+      const stored = window.localStorage.getItem("cnae-recent-searches");
+      if (!stored) {
+        return [];
+      }
+
+      const parsed = JSON.parse(stored) as unknown;
+
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed
+        .map((item) => (typeof item === "string" ? item : ""))
+        .filter((item) => item.trim().length > 0)
+        .slice(0, 5);
+    } catch (error) {
+      console.error("Erro ao carregar buscas recentes do armazenamento local:", error);
+      return [];
+    }
+  });
 
   const debouncedSearch = useDebounce(searchTerm, 300);
   const pageSize = 50;
+
+  const rememberSearch = useCallback((query: string) => {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      return;
+    }
+
+    setRecentSearches((previous) => {
+      const withoutDuplicate = previous.filter(
+        (item) => item.toLocaleLowerCase() !== trimmedQuery.toLocaleLowerCase()
+      );
+      return [trimmedQuery, ...withoutDuplicate].slice(0, 5);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem("cnae-recent-searches", JSON.stringify(recentSearches));
+  }, [recentSearches]);
 
   const loadData = useCallback(async () => {
     try {
@@ -50,6 +99,10 @@ const Index = () => {
       setActivities(data);
       setTotalCount(count ?? data.length);
       setConnectionStatus("connected");
+
+      if (debouncedSearch.trim()) {
+        rememberSearch(debouncedSearch);
+      }
     } catch (err) {
       console.error("Erro ao carregar atividades:", err);
       setError("Não foi possível carregar as atividades. Verifique sua conexão.");
@@ -67,6 +120,7 @@ const Index = () => {
     riskFilter,
     sortBy,
     showVariationsOnly,
+    rememberSearch,
   ]);
 
   useEffect(() => {
@@ -105,6 +159,10 @@ const Index = () => {
             onSortChange={setSortBy}
             showVariationsOnly={showVariationsOnly}
             onShowVariationsOnlyChange={setShowVariationsOnly}
+            highlightRowsByRisk={highlightRowsByRisk}
+            onHighlightRowsByRiskChange={setHighlightRowsByRisk}
+            recentSearches={recentSearches}
+            onRecentSearchSelect={setSearchTerm}
           />
 
           {showVariationsOnly && !isLoading && !error && (
@@ -129,8 +187,8 @@ const Index = () => {
 
           {!isLoading && !error && paginatedGroups.length > 0 && (
             <>
-              <CNAETableDesktop groups={paginatedGroups} />
-              <CNAECardsMobile groups={paginatedGroups} />
+              <CNAETableDesktop groups={paginatedGroups} highlightByRisk={highlightRowsByRisk} />
+              <CNAECardsMobile groups={paginatedGroups} highlightByRisk={highlightRowsByRisk} />
 
               <CNAEPagination
                 currentPage={currentPage}

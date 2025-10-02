@@ -10,6 +10,7 @@ import {
 import { Search } from "lucide-react";
 import { RiskLevel } from "@/lib/supabase";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 
 interface CNAEFiltersProps {
   searchTerm: string;
@@ -20,6 +21,10 @@ interface CNAEFiltersProps {
   onSortChange: (value: "codigo" | "descricao") => void;
   showVariationsOnly: boolean;
   onShowVariationsOnlyChange: (value: boolean) => void;
+  highlightRowsByRisk: boolean;
+  onHighlightRowsByRiskChange: (value: boolean) => void;
+  recentSearches: string[];
+  onRecentSearchSelect: (value: string) => void;
 }
 
 export function CNAEFilters({
@@ -31,6 +36,10 @@ export function CNAEFilters({
   onSortChange,
   showVariationsOnly,
   onShowVariationsOnlyChange,
+  highlightRowsByRisk,
+  onHighlightRowsByRiskChange,
+  recentSearches,
+  onRecentSearchSelect,
 }: CNAEFiltersProps) {
   return (
     <div className="space-y-4 mb-6">
@@ -52,6 +61,25 @@ export function CNAEFilters({
           className="pl-10"
           aria-label="Campo de busca por código ou descrição da atividade"
         />
+        {recentSearches.length > 0 && (
+          <div className="mt-2">
+            <p className="text-xs text-muted-foreground mb-1">Buscas recentes</p>
+            <div className="flex flex-wrap gap-2">
+              {recentSearches.map((item) => (
+                <Button
+                  key={item}
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => onRecentSearchSelect(item)}
+                >
+                  {item}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -94,20 +122,39 @@ export function CNAEFilters({
         </div>
       </div>
 
-      <div className="flex items-start gap-2">
-        <Checkbox
-          id="variations-filter"
-          checked={showVariationsOnly}
-          onCheckedChange={(checked) => onShowVariationsOnlyChange(checked === true)}
-          className="mt-1"
-        />
-        <div className="space-y-1">
-          <Label htmlFor="variations-filter" className="text-sm font-medium">
-            Mostrar apenas códigos com variações
-          </Label>
-          <p className="text-xs text-muted-foreground">
-            Exibe somente códigos CNAE que possuem mais de uma descrição ou nível de risco cadastrado.
-          </p>
+      <div className="space-y-3">
+        <div className="flex items-start gap-2">
+          <Checkbox
+            id="variations-filter"
+            checked={showVariationsOnly}
+            onCheckedChange={(checked) => onShowVariationsOnlyChange(checked === true)}
+            className="mt-1"
+          />
+          <div className="space-y-1">
+            <Label htmlFor="variations-filter" className="text-sm font-medium">
+              Mostrar apenas códigos com variações
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Exibe somente códigos CNAE que possuem mais de uma descrição ou nível de risco cadastrado.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-2">
+          <Checkbox
+            id="highlight-filter"
+            checked={highlightRowsByRisk}
+            onCheckedChange={(checked) => onHighlightRowsByRiskChange(checked === true)}
+            className="mt-1"
+          />
+          <div className="space-y-1">
+            <Label htmlFor="highlight-filter" className="text-sm font-medium">
+              Destacar linhas conforme o nível de risco
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Aplica a cor do nível de risco à linha inteira para facilitar a visualização.
+            </p>
+          </div>
         </div>
       </div>
     </div>
