@@ -43,27 +43,32 @@ export function CNAEFilters({
 }: CNAEFiltersProps) {
   return (
     <div className="space-y-4 mb-6">
-      <div className="relative">
-        <Label htmlFor="search" className="sr-only">
-          Buscar por código ou descrição
-        </Label>
-        <Search
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-          size={18}
-          aria-hidden="true"
-        />
-        <Input
-          id="search"
-          type="search"
-          placeholder="Buscar por código CNAE ou descrição..."
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10"
-          aria-label="Campo de busca por código ou descrição da atividade"
-        />
+      <div className="space-y-2">
+        <div className="relative">
+          <Label htmlFor="search" className="sr-only">
+            Buscar por código ou descrição
+          </Label>
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            size={18}
+            aria-hidden="true"
+          />
+          <Input
+            id="search"
+            type="search"
+            placeholder="Buscar por código CNAE ou descrição..."
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-10"
+            aria-label="Campo de busca por código ou descrição da atividade"
+          />
+        </div>
         {recentSearches.length > 0 && (
-          <div className="mt-2">
-            <p className="text-xs text-muted-foreground mb-1">Buscas recentes</p>
+          <div className="space-y-2">
+            <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Search className="h-3.5 w-3.5" aria-hidden="true" />
+              Buscas recentes
+            </p>
             <div className="flex flex-wrap gap-2">
               {recentSearches.map((item) => (
                 <Button
