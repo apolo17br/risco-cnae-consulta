@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { CNAEHeader } from "@/components/CNAEHeader";
+import { useState, useEffect, useCallback } from "react";
+import { CNAEHeader, type ConnectionStatus } from "@/components/CNAEHeader";
 import { CNAEFilters } from "@/components/CNAEFilters";
 import { CNAETableDesktop } from "@/components/CNAETableDesktop";
 import { CNAECardsMobile } from "@/components/CNAECardsMobile";
@@ -8,7 +8,12 @@ import { RiskLegend } from "@/components/RiskLegend";
 import { LoadingSkeletonDesktop, LoadingSkeletonMobile } from "@/components/LoadingSkeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
-import { fetchCNAEActivities, groupCNAEByCode, RiskLevel } from "@/lib/supabase";
+import {
+  fetchCNAEActivities,
+  groupCNAEByCode,
+  RiskLevel,
+  type CNAEActivity,
+} from "@/lib/supabase";
 import { useDebounce } from "@/hooks/useDebounce";
 import { toast } from "sonner";
 
@@ -19,17 +24,20 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activities, setActivities] = useState<any[]>([]);
+  const [activities, setActivities] = useState<CNAEActivity[]>([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("checking");
+  const [showVariationsOnly, setShowVariationsOnly] = useState(false);
 
   const debouncedSearch = useDebounce(searchTerm, 300);
   const pageSize = 50;
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
+      setConnectionStatus((previous) => (previous === "connected" ? previous : "checking"));
 
       const { data, count } = await fetchCNAEActivities(
         debouncedSearch,
@@ -41,31 +49,43 @@ const Index = () => {
 
       setActivities(data);
       setTotalCount(count);
+      setConnectionStatus("connected");
     } catch (err) {
       console.error("Erro ao carregar atividades:", err);
       setError("Não foi possível carregar as atividades. Verifique sua conexão.");
+      setConnectionStatus("error");
       toast.error("Erro ao carregar dados", {
         description: "Não foi possível conectar ao banco de dados.",
       });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearch, pageSize, riskFilter, sortBy]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, riskFilter, sortBy]);
+  }, [debouncedSearch, riskFilter, sortBy, showVariationsOnly]);
 
   useEffect(() => {
     loadData();
-  }, [debouncedSearch, riskFilter, sortBy, currentPage]);
+  }, [loadData]);
 
   const groupedData = groupCNAEByCode(activities);
+  const filteredGroups = showVariationsOnly
+    ? groupedData.filter((group) => {
+        if (group.variations.length <= 1) return false;
+
+        const uniqueDescriptions = new Set(group.variations.map((variation) => variation.descricao));
+        const uniqueRisks = new Set(group.variations.map((variation) => variation.nivel_risco));
+
+        return uniqueDescriptions.size > 1 || uniqueRisks.size > 1;
+      })
+    : groupedData;
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <CNAEHeader />
+        <CNAEHeader connectionStatus={connectionStatus} />
 
         <main>
           <RiskLegend />
@@ -74,10 +94,18 @@ const Index = () => {
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             riskFilter={riskFilter}
-            onRiskFilterChange={setRiskFilter as any}
+            onRiskFilterChange={setRiskFilter}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            showVariationsOnly={showVariationsOnly}
+            onShowVariationsOnlyChange={setShowVariationsOnly}
           />
+
+          {showVariationsOnly && !isLoading && !error && (
+            <p className="text-sm text-muted-foreground mb-4">
+              Exibindo {filteredGroups.length} códigos CNAE com variações na página atual.
+            </p>
+          )}
 
           {isLoading && (
             <>
@@ -88,14 +116,14 @@ const Index = () => {
 
           {!isLoading && error && <ErrorState message={error} onRetry={loadData} />}
 
-          {!isLoading && !error && groupedData.length === 0 && (
+          {!isLoading && !error && filteredGroups.length === 0 && (
             <EmptyState message="Nenhuma atividade encontrada com os filtros aplicados. Tente ajustar os critérios de busca." />
           )}
 
-          {!isLoading && !error && groupedData.length > 0 && (
+          {!isLoading && !error && filteredGroups.length > 0 && (
             <>
-              <CNAETableDesktop groups={groupedData} />
-              <CNAECardsMobile groups={groupedData} />
+              <CNAETableDesktop groups={filteredGroups} />
+              <CNAECardsMobile groups={filteredGroups} />
 
               <CNAEPagination
                 currentPage={currentPage}

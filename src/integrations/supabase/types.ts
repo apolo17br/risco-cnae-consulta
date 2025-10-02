@@ -14,29 +14,29 @@ export type Database = {
   }
   public: {
     Tables: {
-      csf_cnae: {
+      lista_cnae: {
         Row: {
-          codigo_cnae: string
+          codigo: string
           created_at: string
-          descricao_atividade: string
+          descricao: string
           id: string
-          nivel_risco: Database["public"]["Enums"]["risk_level"]
+          nivel: Database["public"]["Enums"]["risk_level"]
           updated_at: string
         }
         Insert: {
-          codigo_cnae: string
+          codigo: string
           created_at?: string
-          descricao_atividade: string
+          descricao: string
           id?: string
-          nivel_risco: Database["public"]["Enums"]["risk_level"]
+          nivel: Database["public"]["Enums"]["risk_level"]
           updated_at?: string
         }
         Update: {
-          codigo_cnae?: string
+          codigo?: string
           created_at?: string
-          descricao_atividade?: string
+          descricao?: string
           id?: string
-          nivel_risco?: Database["public"]["Enums"]["risk_level"]
+          nivel?: Database["public"]["Enums"]["risk_level"]
           updated_at?: string
         }
         Relationships: []
@@ -49,7 +49,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      risk_level: "Baixo" | "Médio" | "Alto"
+      risk_level: "I - Baixo" | "II - Médio" | "III - Baixo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -177,7 +177,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      risk_level: ["Baixo", "Médio", "Alto"],
+      risk_level: ["I - Baixo", "II - Médio", "III - Baixo"],
     },
   },
 } as const
