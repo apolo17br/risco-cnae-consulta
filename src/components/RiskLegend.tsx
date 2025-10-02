@@ -10,15 +10,15 @@ export function RiskLegend() {
       <span className="font-medium text-foreground">Legenda:</span>
       <div className="flex items-center gap-2">
         <CheckCircle className="w-4 h-4 text-risk-low" aria-hidden="true" />
-        <span className="text-muted-foreground">Baixo</span>
+        <span className="text-muted-foreground">I - Baixo (Verde)</span>
       </div>
       <div className="flex items-center gap-2">
         <AlertTriangle className="w-4 h-4 text-risk-medium" aria-hidden="true" />
-        <span className="text-muted-foreground">Médio</span>
+        <span className="text-muted-foreground">II - Médio (Amarelo)</span>
       </div>
       <div className="flex items-center gap-2">
         <AlertCircle className="w-4 h-4 text-risk-high" aria-hidden="true" />
-        <span className="text-muted-foreground">Alto</span>
+        <span className="text-muted-foreground">III - Alto (Vermelho)</span>
       </div>
     </div>
   );

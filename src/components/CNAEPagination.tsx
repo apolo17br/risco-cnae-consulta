@@ -14,6 +14,7 @@ interface CNAEPaginationProps {
   onPageChange: (page: number) => void;
   totalItems: number;
   pageSize: number;
+  itemLabel?: string;
 }
 
 export function CNAEPagination({
@@ -22,6 +23,7 @@ export function CNAEPagination({
   onPageChange,
   totalItems,
   pageSize,
+  itemLabel = "atividades",
 }: CNAEPaginationProps) {
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalItems);
@@ -61,7 +63,7 @@ export function CNAEPagination({
   return (
     <div className="mt-6 space-y-4">
       <div className="text-sm text-muted-foreground text-center">
-        Mostrando {startItem} a {endItem} de {totalItems} atividades
+        Mostrando {startItem} a {endItem} de {totalItems} {itemLabel}
       </div>
       <Pagination>
         <PaginationContent>

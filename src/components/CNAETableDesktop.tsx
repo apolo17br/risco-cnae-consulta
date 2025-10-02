@@ -17,12 +17,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
+import { getRiskToneConfig } from "@/lib/riskTheme";
 
 interface CNAETableDesktopProps {
   groups: GroupedCNAE[];
+  highlightByRisk: boolean;
 }
 
-export function CNAETableDesktop({ groups }: CNAETableDesktopProps) {
+export function CNAETableDesktop({ groups, highlightByRisk }: CNAETableDesktopProps) {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   const toggleRow = (codigo: string) => {
@@ -54,8 +57,16 @@ export function CNAETableDesktop({ groups }: CNAETableDesktopProps) {
 
             if (!hasMultiple) {
               const variation = group.variations[0];
+              const tone = getRiskToneConfig(variation.nivel_risco);
+
               return (
-                <TableRow key={variation.id}>
+                <TableRow
+                  key={variation.id}
+                  className={cn(
+                    "transition-colors",
+                    highlightByRisk && tone.rowClassName
+                  )}
+                >
                   <TableCell className="font-mono font-medium">
                     {group.codigo}
                   </TableCell>
@@ -75,7 +86,7 @@ export function CNAETableDesktop({ groups }: CNAETableDesktopProps) {
                 asChild
               >
                 <>
-                  <TableRow className="hover:bg-muted/50">
+                  <TableRow className="hover:bg-muted/50 transition-colors">
                     <TableCell>
                       <CollapsibleTrigger asChild>
                         <Button
@@ -103,7 +114,15 @@ export function CNAETableDesktop({ groups }: CNAETableDesktopProps) {
                   <CollapsibleContent asChild>
                     <>
                       {group.variations.map((variation, index) => (
-                        <TableRow key={variation.id} className="bg-muted/30">
+                        <TableRow
+                          key={variation.id}
+                          className={cn(
+                            "transition-colors",
+                            highlightByRisk
+                              ? getRiskToneConfig(variation.nivel_risco).rowClassName
+                              : "bg-muted/30"
+                          )}
+                        >
                           <TableCell className="pl-12 text-muted-foreground text-sm">
                             Variação {index + 1}
                           </TableCell>
