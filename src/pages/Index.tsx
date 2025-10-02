@@ -27,6 +27,7 @@ const Index = () => {
   const [activities, setActivities] = useState<CNAEActivity[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("checking");
+  const [showVariationsOnly, setShowVariationsOnly] = useState(false);
 
   const debouncedSearch = useDebounce(searchTerm, 300);
   const pageSize = 50;
@@ -63,13 +64,23 @@ const Index = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, riskFilter, sortBy]);
+  }, [debouncedSearch, riskFilter, sortBy, showVariationsOnly]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
   const groupedData = groupCNAEByCode(activities);
+  const filteredGroups = showVariationsOnly
+    ? groupedData.filter((group) => {
+        if (group.variations.length <= 1) return false;
+
+        const uniqueDescriptions = new Set(group.variations.map((variation) => variation.descricao));
+        const uniqueRisks = new Set(group.variations.map((variation) => variation.nivel_risco));
+
+        return uniqueDescriptions.size > 1 || uniqueRisks.size > 1;
+      })
+    : groupedData;
 
   return (
     <div className="min-h-screen bg-background">
@@ -86,7 +97,15 @@ const Index = () => {
             onRiskFilterChange={setRiskFilter}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            showVariationsOnly={showVariationsOnly}
+            onShowVariationsOnlyChange={setShowVariationsOnly}
           />
+
+          {showVariationsOnly && !isLoading && !error && (
+            <p className="text-sm text-muted-foreground mb-4">
+              Exibindo {filteredGroups.length} códigos CNAE com variações na página atual.
+            </p>
+          )}
 
           {isLoading && (
             <>
@@ -97,14 +116,14 @@ const Index = () => {
 
           {!isLoading && error && <ErrorState message={error} onRetry={loadData} />}
 
-          {!isLoading && !error && groupedData.length === 0 && (
+          {!isLoading && !error && filteredGroups.length === 0 && (
             <EmptyState message="Nenhuma atividade encontrada com os filtros aplicados. Tente ajustar os critérios de busca." />
           )}
 
-          {!isLoading && !error && groupedData.length > 0 && (
+          {!isLoading && !error && filteredGroups.length > 0 && (
             <>
-              <CNAETableDesktop groups={groupedData} />
-              <CNAECardsMobile groups={groupedData} />
+              <CNAETableDesktop groups={filteredGroups} />
+              <CNAECardsMobile groups={filteredGroups} />
 
               <CNAEPagination
                 currentPage={currentPage}

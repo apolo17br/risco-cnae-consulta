@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { RiskLevel } from "@/lib/supabase";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CNAEFiltersProps {
   searchTerm: string;
@@ -17,6 +18,8 @@ interface CNAEFiltersProps {
   onRiskFilterChange: (value: RiskLevel | "Todos") => void;
   sortBy: "codigo" | "descricao";
   onSortChange: (value: "codigo" | "descricao") => void;
+  showVariationsOnly: boolean;
+  onShowVariationsOnlyChange: (value: boolean) => void;
 }
 
 export function CNAEFilters({
@@ -26,6 +29,8 @@ export function CNAEFilters({
   onRiskFilterChange,
   sortBy,
   onSortChange,
+  showVariationsOnly,
+  onShowVariationsOnlyChange,
 }: CNAEFiltersProps) {
   return (
     <div className="space-y-4 mb-6">
@@ -63,9 +68,9 @@ export function CNAEFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Todos">Todos os níveis</SelectItem>
-              <SelectItem value="Baixo">Baixo</SelectItem>
-              <SelectItem value="Médio">Médio</SelectItem>
-              <SelectItem value="Alto">Alto</SelectItem>
+              <SelectItem value="I - Baixo">I - Baixo (Verde)</SelectItem>
+              <SelectItem value="II - Médio">II - Médio (Amarelo)</SelectItem>
+              <SelectItem value="III - Baixo">III - Baixo (Vermelho)</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -86,6 +91,23 @@ export function CNAEFilters({
               <SelectItem value="descricao">Descrição</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+      </div>
+
+      <div className="flex items-start gap-2">
+        <Checkbox
+          id="variations-filter"
+          checked={showVariationsOnly}
+          onCheckedChange={(checked) => onShowVariationsOnlyChange(checked === true)}
+          className="mt-1"
+        />
+        <div className="space-y-1">
+          <Label htmlFor="variations-filter" className="text-sm font-medium">
+            Mostrar apenas códigos com variações
+          </Label>
+          <p className="text-xs text-muted-foreground">
+            Exibe somente códigos CNAE que possuem mais de uma descrição ou nível de risco cadastrado.
+          </p>
         </div>
       </div>
     </div>

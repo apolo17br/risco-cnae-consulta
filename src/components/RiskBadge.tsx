@@ -11,20 +11,20 @@ const riskConfig: Record<
   RiskLevel,
   { icon: typeof CheckCircle; className: string; ariaLabel: string }
 > = {
-  Baixo: {
+  "I - Baixo": {
     icon: CheckCircle,
     className: "bg-risk-low-bg text-risk-low border-risk-low",
-    ariaLabel: "Risco sanitário baixo",
+    ariaLabel: "Risco sanitário nível I - Baixo",
   },
-  Médio: {
+  "II - Médio": {
     icon: AlertTriangle,
     className: "bg-risk-medium-bg text-risk-medium border-risk-medium",
-    ariaLabel: "Risco sanitário médio",
+    ariaLabel: "Risco sanitário nível II - Médio",
   },
-  Alto: {
+  "III - Baixo": {
     icon: AlertCircle,
     className: "bg-risk-high-bg text-risk-high border-risk-high",
-    ariaLabel: "Risco sanitário alto",
+    ariaLabel: "Risco sanitário nível III - Baixo",
   },
 };
 
