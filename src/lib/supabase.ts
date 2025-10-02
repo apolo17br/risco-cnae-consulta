@@ -1,6 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
-export type RiskLevel = "Baixo" | "Médio" | "Alto";
+type SupabaseCNAE = Tables<"lista_cnae">;
+
+export type RiskLevel = "I - Baixo" | "II - Médio" | "III - Alto";
 
 export interface CNAEActivity {
   id: string;
@@ -24,35 +27,46 @@ export async function fetchCNAEActivities(
   riskFilter?: RiskLevel | "Todos",
   sortBy: "codigo" | "descricao" = "codigo",
   page: number = 1,
-  pageSize: number = 50
+  pageSize: number = 50,
+  showVariationsOnly: boolean = false
 ) {
   let query = supabase
-    .from("csf_cnae")
+    .from("lista_cnae")
     .select("*", { count: "exact" });
 
   // Filtro de busca
   if (searchTerm && searchTerm.trim()) {
-    query = query.or(`codigo_cnae.ilike.%${searchTerm}%,descricao_atividade.ilike.%${searchTerm}%`);
+    query = query.or(`codigo.ilike.%${searchTerm}%,descricao.ilike.%${searchTerm}%`);
   }
 
   // Filtro de risco
   if (riskFilter && riskFilter !== "Todos") {
-    query = query.eq("nivel_risco", riskFilter);
+    query = query.eq("nivel", riskFilter);
   }
 
   // Ordenação
-  query = query.order(sortBy === "codigo" ? "codigo_cnae" : "descricao_atividade", { ascending: true });
+  query = query.order(sortBy === "codigo" ? "codigo" : "descricao", { ascending: true });
 
-  // Paginação
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  query = query.range(from, to);
+  // Paginação (desativada quando o filtro de variações está ativo)
+  if (!showVariationsOnly) {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    query = query.range(from, to);
+  }
 
   const { data, error, count } = await query;
 
   if (error) throw error;
 
-  return { data: data || [], count: count || 0 };
+  const activities: CNAEActivity[] = (data || []).map((activity: SupabaseCNAE) => ({
+    id: activity.id,
+    codigo_cnae: activity.codigo,
+    descricao_atividade: activity.descricao,
+    nivel_risco: activity.nivel,
+    created_at: activity.created_at,
+  }));
+
+  return { data: activities, count: count || activities.length };
 }
 
 export function groupCNAEByCode(activities: CNAEActivity[]): GroupedCNAE[] {
