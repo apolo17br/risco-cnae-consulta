@@ -1,4 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+
+type SupabaseCNAE = Tables<"lista_cnae">;
 
 export type RiskLevel = "Baixo" | "Médio" | "Alto";
 
@@ -27,7 +30,7 @@ export async function fetchCNAEActivities(
   pageSize: number = 50
 ) {
   let query = supabase
-    .from("csf_cnae")
+    .from("lista_cnae")
     .select("*", { count: "exact" });
 
   // Filtro de busca
@@ -52,7 +55,15 @@ export async function fetchCNAEActivities(
 
   if (error) throw error;
 
-  return { data: data || [], count: count || 0 };
+  const activities: CNAEActivity[] = (data || []).map((activity: SupabaseCNAE) => ({
+    id: activity.id,
+    codigo_cnae: activity.codigo_cnae,
+    descricao_atividade: activity.descricao_atividade,
+    nivel_risco: activity.nivel_risco,
+    created_at: activity.created_at,
+  }));
+
+  return { data: activities, count: count || activities.length };
 }
 
 export function groupCNAEByCode(activities: CNAEActivity[]): GroupedCNAE[] {

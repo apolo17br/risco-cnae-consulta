@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { CNAEHeader } from "@/components/CNAEHeader";
 import { CNAEFilters } from "@/components/CNAEFilters";
 import { CNAETableDesktop } from "@/components/CNAETableDesktop";
@@ -8,7 +8,12 @@ import { RiskLegend } from "@/components/RiskLegend";
 import { LoadingSkeletonDesktop, LoadingSkeletonMobile } from "@/components/LoadingSkeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
-import { fetchCNAEActivities, groupCNAEByCode, RiskLevel } from "@/lib/supabase";
+import {
+  fetchCNAEActivities,
+  groupCNAEByCode,
+  RiskLevel,
+  type CNAEActivity,
+} from "@/lib/supabase";
 import { useDebounce } from "@/hooks/useDebounce";
 import { toast } from "sonner";
 
@@ -19,14 +24,14 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activities, setActivities] = useState<any[]>([]);
+  const [activities, setActivities] = useState<CNAEActivity[]>([]);
   const [totalCount, setTotalCount] = useState(0);
 
   const debouncedSearch = useDebounce(searchTerm, 300);
   const pageSize = 50;
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -50,7 +55,7 @@ const Index = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearch, pageSize, riskFilter, sortBy]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -58,7 +63,7 @@ const Index = () => {
 
   useEffect(() => {
     loadData();
-  }, [debouncedSearch, riskFilter, sortBy, currentPage]);
+  }, [loadData]);
 
   const groupedData = groupCNAEByCode(activities);
 
@@ -74,7 +79,7 @@ const Index = () => {
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             riskFilter={riskFilter}
-            onRiskFilterChange={setRiskFilter as any}
+            onRiskFilterChange={setRiskFilter}
             sortBy={sortBy}
             onSortChange={setSortBy}
           />

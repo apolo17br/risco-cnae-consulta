@@ -54,7 +54,10 @@ export function CNAEFilters({
           <Label htmlFor="risk-filter" className="mb-2 block text-sm font-medium">
             Filtrar por nível de risco
           </Label>
-          <Select value={riskFilter} onValueChange={onRiskFilterChange}>
+          <Select
+            value={riskFilter}
+            onValueChange={(value) => onRiskFilterChange(value as RiskLevel | "Todos")}
+          >
             <SelectTrigger id="risk-filter" aria-label="Filtro de nível de risco">
               <SelectValue />
             </SelectTrigger>
@@ -71,7 +74,10 @@ export function CNAEFilters({
           <Label htmlFor="sort-by" className="mb-2 block text-sm font-medium">
             Ordenar por
           </Label>
-          <Select value={sortBy} onValueChange={onSortChange}>
+          <Select
+            value={sortBy}
+            onValueChange={(value) => onSortChange(value as "codigo" | "descricao")}
+          >
             <SelectTrigger id="sort-by" aria-label="Ordenação">
               <SelectValue />
             </SelectTrigger>

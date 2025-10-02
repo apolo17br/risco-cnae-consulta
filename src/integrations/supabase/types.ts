@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      csf_cnae: {
+      lista_cnae: {
         Row: {
           codigo_cnae: string
           created_at: string
