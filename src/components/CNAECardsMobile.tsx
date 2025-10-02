@@ -1,13 +1,14 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RiskBadge } from "./RiskBadge";
 import { GroupedCNAE } from "@/lib/supabase";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getRiskToneConfig } from "@/lib/riskTheme";
 
@@ -17,6 +18,20 @@ interface CNAECardsMobileProps {
 }
 
 export function CNAECardsMobile({ groups, highlightByRisk }: CNAECardsMobileProps) {
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
+  const toggleGroup = (codigo: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(codigo)) {
+        next.delete(codigo);
+      } else {
+        next.add(codigo);
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="md:hidden space-y-4">
       {groups.map((group) => {
@@ -50,62 +65,61 @@ export function CNAECardsMobile({ groups, highlightByRisk }: CNAECardsMobileProp
           );
         }
 
-        return (
-          <Card key={group.codigo} className="transition-colors">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-2">
-                <CardTitle className="text-base font-mono">
-                  {group.codigo}
-                </CardTitle>
-                <Badge variant="secondary">
-                  {group.variations.length} variações
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Accordion type="single" collapsible className="w-full">
-                {group.variations.map((variation, index) => {
-                  const tone = getRiskToneConfig(variation.nivel_risco);
-                  const highlightClass = highlightByRisk ? tone.surfaceClassName : "";
+        const isExpanded = expandedGroups.has(group.codigo);
 
-                  return (
-                    <AccordionItem
-                      key={variation.id}
-                      value={variation.id}
-                      className={cn(
-                        "border-b-0",
-                        highlightByRisk && "rounded-md mb-2 last:mb-0",
-                        highlightClass
-                      )}
-                    >
-                      <AccordionTrigger
+        return (
+          <Collapsible
+            key={group.codigo}
+            open={isExpanded}
+            onOpenChange={() => toggleGroup(group.codigo)}
+          >
+            <Card className="transition-colors">
+              <CardHeader className="pb-3">
+                <CollapsibleTrigger asChild>
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-between gap-2 text-left"
+                    aria-expanded={isExpanded}
+                    aria-label={`${isExpanded ? "Recolher" : "Expandir"} variações do código ${group.codigo}`}
+                  >
+                    <div className="flex flex-col items-start gap-1">
+                      <CardTitle className="text-base font-mono">{group.codigo}</CardTitle>
+                      <Badge variant="secondary">{group.variations.length} variações</Badge>
+                    </div>
+                    {isExpanded ? (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </button>
+                </CollapsibleTrigger>
+              </CardHeader>
+              <CollapsibleContent asChild>
+                <CardContent className="space-y-3 pt-0">
+                  {group.variations.map((variation, index) => {
+                    const tone = getRiskToneConfig(variation.nivel_risco);
+                    return (
+                      <div
+                        key={variation.id}
                         className={cn(
-                          "text-sm hover:no-underline py-3 px-3 text-left",
-                          highlightByRisk && "rounded-t-md"
+                          "rounded-md border border-border/60 p-3 transition-colors",
+                          highlightByRisk && tone.surfaceClassName
                         )}
                       >
-                        <div className="flex items-center gap-2 text-left">
-                          <span className="text-muted-foreground">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm font-medium text-muted-foreground">
                             Variação {index + 1}
                           </span>
                           <RiskBadge level={variation.nivel_risco} className="text-xs" />
                         </div>
-                      </AccordionTrigger>
-                      <AccordionContent
-                        className={cn(
-                          "text-sm pb-3 px-3",
-                          highlightByRisk && "text-foreground",
-                          highlightByRisk && "rounded-b-md"
-                        )}
-                      >
-                        {variation.descricao}
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
-            </CardContent>
-          </Card>
+                        <p className="mt-2 text-sm text-foreground">{variation.descricao}</p>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
         );
       })}
     </div>
