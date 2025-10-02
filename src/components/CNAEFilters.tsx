@@ -70,7 +70,7 @@ export function CNAEFilters({
               <SelectItem value="Todos">Todos os níveis</SelectItem>
               <SelectItem value="I - Baixo">I - Baixo (Verde)</SelectItem>
               <SelectItem value="II - Médio">II - Médio (Amarelo)</SelectItem>
-              <SelectItem value="III - Baixo">III - Baixo (Vermelho)</SelectItem>
+              <SelectItem value="III - Alto">III - Alto (Vermelho)</SelectItem>
             </SelectContent>
           </Select>
         </div>

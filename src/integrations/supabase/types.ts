@@ -49,7 +49,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      risk_level: "I - Baixo" | "II - Médio" | "III - Baixo"
+      risk_level: "I - Baixo" | "II - Médio" | "III - Alto"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -177,7 +177,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      risk_level: ["I - Baixo", "II - Médio", "III - Baixo"],
+      risk_level: ["I - Baixo", "II - Médio", "III - Alto"],
     },
   },
 } as const

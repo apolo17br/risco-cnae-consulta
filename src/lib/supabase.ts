@@ -3,7 +3,7 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type SupabaseCNAE = Tables<"lista_cnae">;
 
-export type RiskLevel = "I - Baixo" | "II - Médio" | "III - Baixo";
+export type RiskLevel = "I - Baixo" | "II - Médio" | "III - Alto";
 
 export interface CNAEActivity {
   id: string;

@@ -21,10 +21,10 @@ const riskConfig: Record<
     className: "bg-risk-medium-bg text-risk-medium border-risk-medium",
     ariaLabel: "Risco sanitário nível II - Médio",
   },
-  "III - Baixo": {
+  "III - Alto": {
     icon: AlertCircle,
     className: "bg-risk-high-bg text-risk-high border-risk-high",
-    ariaLabel: "Risco sanitário nível III - Baixo",
+    ariaLabel: "Risco sanitário nível III - Alto",
   },
 };
 

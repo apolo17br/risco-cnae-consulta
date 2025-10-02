@@ -72,14 +72,7 @@ const Index = () => {
 
   const groupedData = groupCNAEByCode(activities);
   const filteredGroups = showVariationsOnly
-    ? groupedData.filter((group) => {
-        if (group.variations.length <= 1) return false;
-
-        const uniqueDescriptions = new Set(group.variations.map((variation) => variation.descricao));
-        const uniqueRisks = new Set(group.variations.map((variation) => variation.nivel_risco));
-
-        return uniqueDescriptions.size > 1 || uniqueRisks.size > 1;
-      })
+    ? groupedData.filter((group) => group.variations.length > 1)
     : groupedData;
 
   return (

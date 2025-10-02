@@ -18,7 +18,7 @@ export function RiskLegend() {
       </div>
       <div className="flex items-center gap-2">
         <AlertCircle className="w-4 h-4 text-risk-high" aria-hidden="true" />
-        <span className="text-muted-foreground">III - Baixo (Vermelho)</span>
+        <span className="text-muted-foreground">III - Alto (Vermelho)</span>
       </div>
     </div>
   );
